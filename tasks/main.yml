@@ -56,23 +56,6 @@
       creates: "/etc/letsencrypt/live/{{ item }}"
     with_items: "{{ letsencrypt_cert_domains }}"
 
-#  - name: Fix the renewal file
-#    vars:
-#      - os_packages_only: False
-#        verb: certonly
-#        noninteractive_mode: False
-#        uir: False
-#        hsts: False
-#        authenticator: '{{ letsencrypt_authenticator }}'
-#    ini_file:
-#      section: renewalparams
-#      option: "{{ item.key }}"
-#      value: "{{ item.value }}"
-#      dest: "/etc/letsencrypt/renewal/{{ domain }}.conf"
-#    become: yes
-#    with_nested:
-#        - "{{ letsencrypt_cert_domains }}"
-
   - name: Fix the renewal file
     vars:
       - os_packages_only: False
@@ -81,11 +64,16 @@
         uir: False
         hsts: False
         authenticator: '{{ letsencrypt_authenticator }}'
-    debug:
-      msg: "{{ item[0] }} {{ item[1] }} "
+    ini_file:
+      section: renewalparams
+      option: "{{ item[0].key }}"
+      value: "{{ item[0].value }}"
+      dest: "/etc/letsencrypt/renewal/{{ item[1] }}.conf"
+    become: yes
     with_nested:
         - [os_packages_only: False, verb: certonly, noninteractive_mode: False, uir: False, hsts: False, authenticator: '{{ letsencrypt_authenticator }}']
         - "{{ letsencrypt_cert_domains }}"
+
   - name: Fix the webroot map in the renewal file
     ini_file:
       section: "[webroot_map]"

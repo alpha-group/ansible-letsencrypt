@@ -82,8 +82,9 @@
         hsts: False
         authenticator: '{{ letsencrypt_authenticator }}'
     debug:
-      var: "{{ item[0].key }}"
-
+      msg: "{{ item[0].key }} {{ item[1].key }}"
+    with_nested:
+        - "{{ letsencrypt_cert_domains }}"
   - name: Fix the webroot map in the renewal file
     ini_file:
       section: "[webroot_map]"

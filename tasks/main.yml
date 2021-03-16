@@ -68,11 +68,19 @@
 #        - "{{ letsencrypt_cert_domains }}"
 
   - name: Fix the renewal file
+    vars:
+      renewal_dict:
+        os_packages_only: False
+        verb: certonly
+        noninteractive_mode: False
+        uir: False
+        hsts: False
+        authenticator: '{{ letsencrypt_authenticator }}'
     debug:
-      msg: "{{ item[0].key }}"
+      msg: "{{ item[0] }} {{ item[1] }}"
     become: yes
     with_nested:
-        - [os_packages_only: False, verb: certonly, noninteractive_mode: False, uir: False, hsts: False, authenticator: '{{ letsencrypt_authenticator }}']
+        - "{{ renewal_dict | dictsort }}"
         - "{{ letsencrypt_cert_domains }}"
 
   - name: Fix the webroot map in the renewal file
